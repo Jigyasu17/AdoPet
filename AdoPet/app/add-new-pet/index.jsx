@@ -6,8 +6,18 @@ import { Picker } from '@react-native-picker/picker';
 
 export default function AddNewPet() {
     const navigation = useNavigation();
-    const [formData, setFormData] = useState({});
+    const [formData, setFormData] = useState({
+        name: '',
+        breed: '',
+        age: '',
+        sex: '',
+        category: '',
+        weight: '',
+        address: '',
+        about: '',
+    });
     const [gender, setGender] = useState('');
+    const [category, setCategory] = useState(null)
 
     useEffect(() => {
         navigation.setOptions({
@@ -15,6 +25,13 @@ export default function AddNewPet() {
         });
     }, []);
 
+    const handleSubmit = () => {
+        if (!formData.name || !formData.breed || !formData.age || !formData.sex || !formData.category || !formData.weight || !formData.address || !formData.about) {
+            alert('Please fill all required fields');
+            return;
+        }
+        console.log(formData);  // Replace with API call
+    };
     const handleInputChange = (fieldName, fieldValue) => {
         setFormData(prev => ({
             ...prev,
@@ -49,7 +66,7 @@ export default function AddNewPet() {
                 <Text style={styles.label}> Gender *</Text>
                 <View style={styles.pickerContainer}>
                     <Picker
-                        selectedValue={gender}
+                        selectedValue={formData.sex}
                         style={styles.picker}
                         onValueChange={(itemValue) => {
                             setGender(itemValue);
@@ -58,6 +75,25 @@ export default function AddNewPet() {
                         <Picker.Item label="Select Gender" value="" />
                         <Picker.Item label="Male" value="Male" />
                         <Picker.Item label="Female" value="Female" />
+                    </Picker>
+                </View>
+            </View>
+
+            <View style={styles.inputContainer}>
+                <Text style={styles.label}> Category *</Text>
+                <View style={styles.pickerContainer}>
+                    <Picker
+                        selectedValue={formData.category}
+                        style={styles.picker}
+                        onValueChange={(itemValue) => {
+                            setCategory(itemValue);
+                            handleInputChange('category', itemValue);
+                        }}>
+                        <Picker.Item label="Select Pet Category" value="" />
+                        <Picker.Item label="Dog" value="dog" />
+                        <Picker.Item label="Cat" value="cat" />
+                        <Picker.Item label="Bird" value="bird" />
+                        <Picker.Item label="Fish" value="fish" />
                     </Picker>
                 </View>
             </View>
@@ -77,7 +113,7 @@ export default function AddNewPet() {
                 <TextInput style={styles.textArea} placeholder="Write something about the pet" multiline={true} numberOfLines={5} onChangeText={value => handleInputChange('about', value)} />
             </View>
 
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity onPress={handleSubmit} style={styles.button}>
                 <Text style={styles.buttonText}>Submit</Text>
             </TouchableOpacity>
         </ScrollView>

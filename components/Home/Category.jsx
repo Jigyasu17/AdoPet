@@ -1,35 +1,82 @@
-import { View, Text, StyleSheet } from 'react-native';
-import React from 'react';
+import { View, Text, FlatList, Image, StyleSheet, TouchableOpacity } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { collection, getDocs } from 'firebase/firestore'
+import {db} from './../../config/FirebaseConfig'
+import Colors from './../../constants/Colors'
+export default function Category({category}) {
 
-export default function Category() {
+    const [categoryList,setCategortList]=useState([]);
+    const [selectedCategory,setSelectedategory]=useState('Dogs');
+    useEffect(()=>{
+        GetCategories();
+    },[])
+
+    /**
+     * Used to Get Category List from DB
+     */
+    const GetCategories=async()=>{
+        setCategortList([]);
+        const snapshot=await getDocs(collection(db,'Category'));
+        snapshot.forEach((doc)=>{
+            setCategortList(categoryList=>[...categoryList,doc.data()])
+        })
+
+    }
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Category is shown</Text>
+    <View style={{
+        marginTop:20,
+    }}>
+      <Text style={{
+        fontFamily:'outfit-medium',
+        fontSize:20
+      }}>Category</Text>
+
+      <FlatList
+        data={categoryList}
+        numColumns={4}
+        renderItem={({item,index})=>(
+            <TouchableOpacity 
+                onPress={()=>{
+                    setSelectedategory(item.name);
+                    category(item.name)
+                }}
+            style={{
+                flex:1
+            }}> 
+                <View style={[styles.conatiner,
+                selectedCategory==item.name&&styles.selectedCategoryContainer]}>
+                    <Image source={{uri:item?.imageUrl}}
+                    style={{
+                        width:40,
+                        height:40
+                    }}
+                    />
+                </View>
+                <Text style={{
+                    textAlign:'center',
+                    fontFamily:'outfit'
+                }}>{item?.name}</Text>
+            </TouchableOpacity>
+        )}
+      />
+
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
-  container: {
-    marginTop: 1,
-    marginBottom:15,
-    alignItems: 'center',  
-    padding: 10,
-    backgroundColor: '#f8d568',  // Light yellow background
-    borderRadius: 20,  // Rounded corners
-    width: '90%',  // Responsive width
-    alignSelf: 'center',  // Center the container horizontally
-    elevation: 5, // Shadow for Android
-    shadowColor: '#000',  // Shadow for iOS
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-  },
-  text: {
-    fontFamily: 'outfit-medium',
-    fontSize: 20,
-    color: '#333',  // Dark gray for better visibility
-    textTransform: 'uppercase',  
-    fontWeight: 'bold',
-  },
-});
+    conatiner:{
+        backgroundColor:Colors.LIGHT_PRIMARY,
+        padding:15,
+        alignItems:'center',
+        borderWidth:1,
+        borderRadius:15,
+        borderColor:Colors.PRIMARY,
+        margin:5
+    },
+    selectedCategoryContainer:{
+        backgroundColor:Colors.SECONDARY,
+        borderColor:Colors.SECONDARY
+    }
+})

@@ -95,4 +95,4 @@ const styles = StyleSheet.create({
         marginTop:5,
         marginRight:10
     }
-})
+}) 

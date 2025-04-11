@@ -1,73 +1,66 @@
-import { Stack } from "expo-router";
 import { useFonts } from "expo-font";
+import { Link, Stack } from "expo-router";
 import * as SecureStore from 'expo-secure-store'
 import { ClerkProvider, ClerkLoaded } from '@clerk/clerk-expo'
+import { Text } from "react-native";
+const tokenCache = {
+  async getToken(key) {
+    try {
+      const item = await SecureStore.getItemAsync(key)
+      if (item) {
+        console.log(`${key} was used 🔐 \n`)
+      } else {
+        console.log('No values stored under key: ' + key)
+      }
+      return item
+    } catch (error) {
+      console.error('SecureStore get item error: ', error)
+      await SecureStore.deleteItemAsync(key)
+      return null
+    }
+  },
+  async saveToken(key, value) {
+    try {
+      return SecureStore.setItemAsync(key, value)
+    } catch (err) {
+      return
+    }
+  },
+}
+export default function RootLayout() {
 
-const { secureStore } = require("@clerk/clerk-expo/secure-store")
-
-const tokenCache ={
-    async getToken(key) {
-        try {
-            const item = await SecureStore.getItemAsync(key)
-            if (item) {
-                console.log(`${key} was used \n`)
-            } else {
-                console.log('No values stored under key:' + key)
-            }
-            return item
-        }   catch(error) {
-            console.error('SecureStore get item error:', error)
-            await SecureStore.deleteItemAsync(key)
-            return null
-        }
-    },
-    async saveToken(key, value) {
-        try {
-            return SecureStore.setItemAsync(key, value)
-        }   catch (err) {
-            return
-        }
-    },
-}   
-
-const originalConsoleLog = console.log;
-
-console.log = (...args) => {
-  if (args[0] && args[0].includes('__clerk_client_jwt was used')) {
-    return; // Suppress the log
-  }
-  originalConsoleLog(...args);
-};
-
-export default function RootLayout() { 
 
   const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY
-
+ 
   useFonts({
-    'Spacemono': require('./../assets/fonts/SpaceMono-Regular.ttf'),
+    'outfit':require('./../assets/fonts/Outfit-Regular.ttf'),
+    'outfit-medium':require('./../assets/fonts/Outfit-Medium.ttf'),
+    'outfit-bold':require('./../assets/fonts/Outfit-Bold.ttf'),
+
   })
 
   return (
     <ClerkProvider 
     tokenCache={tokenCache}
-     publishableKey={publishableKey}
-     debug = {false} //disable debug logs
-     >
-
+    publishableKey={publishableKey}>
       
-  <Stack>
-    <Stack.Screen name="index" />
-    <Stack.Screen name="(tabs)" 
-    options={{
-      headerShown:false
-    }}
-    />
-    <Stack.Screen name="login/index" 
-    options={{
-      headerShown:false
-    }}
-    />
-  </Stack>
-  </ClerkProvider>
+    <Stack>
+      {/* <Stack.Screen name="index" /> */}
+      <Stack.Screen name="(tabs)" 
+      options={{
+        headerShown:false
+      }}
+      />
+      <Stack.Screen name="login/index"
+      options={{
+        headerShown:false
+      }}
+      />
+
+    </Stack>
+    {/* <Link href={'/login'}>
+          <Text>Login</Text> 
+        </Link> */}
+    </ClerkProvider>
   );
 }
